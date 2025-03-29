@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flying Dino Game</title>
+    <style>
+        body { text-align: center; font-family: Arial, sans-serif; }
+        canvas { background: lightblue; display: none; }
+        #startButton { padding: 10px 20px; font-size: 20px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <button id="startButton">Play</button>
+    <canvas id="gameCanvas" width="800" height="400"></canvas>
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+        const startButton = document.getElementById("startButton");
+
+        let gameRunning = false;
+        let score = 0;
+        let mode = "fly"; // "fly" or "run"
+        let character = { x: 100, y: 150, width: 40, height: 40, vy: 0, gravity: 0.5 };
+        let obstacles = [];
+
+        startButton.addEventListener("click", () => {
+            startButton.style.display = "none";
+            canvas.style.display = "block";
+            startGame();
+        });
+
+        function startGame() {
+            gameRunning = true;
+            score = 0;
+            mode = "fly";
+            character.y = 150;
+            character.vy = 0;
+            obstacles = [];
+            requestAnimationFrame(gameLoop);
+        }
+
+        function gameLoop() {
+            if (!gameRunning) return;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillText(`Score: ${score}`, 20, 30);
+            
+            if (mode === "fly") {
+                character.vy += character.gravity;
+                character.y += character.vy;
+                if (character.y < 0) character.y = 0;
+            }
+
+            if (mode === "run" && character.y < canvas.height - character.height) {
+                character.vy += character.gravity;
+                character.y += character.vy;
+            }
+
+            ctx.fillRect(character.x, character.y, character.width, character.height);
+            score++;
+
+            if (score >= 150 && score < 300) mode = "run";
+            else if (score >= 300 && score < 450) mode = "fly";
+            else if (score >= 450 && score < 600) mode = "run";
+            else if (score >= 600 && score < 750) mode = "fly";
+            else if (score >= 750 && score < 1000) mode = "run";
+            else if (score >= 1000) {
+                alert("Congratulations! You became human and won the game!");
+                gameRunning = false;
+                startButton.style.display = "block";
+                return;
+            }
+
+            requestAnimationFrame(gameLoop);
+        }
+        
+        document.addEventListener("keydown", (e) => {
+            if (mode === "fly" && e.code === "Space") {
+                character.vy = -8;
+            }
+            if (mode === "run" && e.code === "Space" && character.y >= canvas.height - character.height) {
+                character.vy = -10;
+            }
+        });
+    </script>
+</body>
+</html>
